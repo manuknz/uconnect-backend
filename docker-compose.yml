@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+
+  db:
+    container_name: postgresql_db
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=uconnect
+      - POSTGRES_PASSWORD=t3s1s2023
+      - POSTGRES_DB=uconnect_db
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+  server:
+    container_name: app
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    restart: always
