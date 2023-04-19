@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 
 
-class CareerCreate(BaseModel):
+class CityCreate(BaseModel):
     name: str
 
     class Config:
         orm_mode: True
 
 
-class Career(CareerCreate):
+class City(CityCreate):
     id: int
 
     class Config:

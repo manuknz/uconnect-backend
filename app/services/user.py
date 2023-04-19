@@ -50,7 +50,7 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-def edit_user(db: Session, user_id: int, user: schemas.UserEdit):
+def edit_user(db: Session, user_id: int, user: schemas.UserCreate):
     try:
         phone_number = user.phone_number
         career = user.career

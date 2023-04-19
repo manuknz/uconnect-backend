@@ -15,13 +15,14 @@ class UserCreate(UserBase):
     career: str
 
 
-class UserEdit(UserBase):
-    career: str
+class UserCv(UserBase):
+    file_id: int
 
 
 class User(UserBase):
     id: int
     career_id: int
+    file_id: int
 
     class Config:
         orm_mode = True

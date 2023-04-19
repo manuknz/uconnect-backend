@@ -72,8 +72,8 @@ async def recover_password(data: pass_schemas.PasswordEmail, db: Session = Depen
         raise HTTPException(status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value)
 
 
-@api.put("/users/{user_id}/", response_model=schemas.User, tags=["user"])
-def edit_user(user_id: int, user: schemas.UserEdit, db: Session = Depends(get_db), token: str = Depends(auth_services.oauth2_scheme)):
+@api.put("/users/{user_id}/", response_model=schemas.User, tags=["user"], summary="Editar usuario")
+def edit_user(user_id: int, user: schemas.UserCreate, db: Session = Depends(get_db), token: str = Depends(auth_services.oauth2_scheme)):
     try:
         res = services.edit_user(db, user_id, user)
         db.commit()
