@@ -20,20 +20,20 @@ logger = logging.getLogger(__name__)
 #     return current_user
 
 
-@api.get("/users/all/", response_model=List[schemas.User], tags=["user"], summary="Obtener todos los usuarios")
+@api.get("/user/all/", response_model=List[schemas.User], tags=["user"], summary="Obtener todos los usuarios")
 def get_users(db: Session = Depends(get_db), token: str = Depends(auth_services.oauth2_scheme)):
     users = services.get_users(db)
     return users
 
 
-@api.get("/users/email/{email}/", response_model=schemas.User, tags=["user"], summary="Obtener usuario por correo")
+@api.get("/user/email/{email}/", response_model=schemas.User, tags=["user"], summary="Obtener usuario por correo")
 async def get_user_by_mail(email: str, db: Session = Depends(get_db), token: str = Depends(auth_services.oauth2_scheme)):
     user = services.get_user_by_email(db, email)
     logger.info(vars(user))
     return user
 
 
-@api.post("/users/create/", tags=["user"], summary="Crear un usuario")
+@api.post("/user/create/", tags=["user"], summary="Crear un usuario")
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     try:
         db_user = services.get_user_by_email(db=db, email=user.email)
@@ -53,7 +53,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value)
 
 
-@api.post("/users/recover-password/", tags=["user"], summary="Recuperar contraseña")
+@api.post("/user/recover-password/", tags=["user"], summary="Recuperar contraseña")
 async def recover_password(data: pass_schemas.PasswordEmail, db: Session = Depends(get_db)):
     try:
         user_password_code = services.get_password_reset_code(db, data.email)
@@ -72,7 +72,7 @@ async def recover_password(data: pass_schemas.PasswordEmail, db: Session = Depen
         raise HTTPException(status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value)
 
 
-@api.put("/users/{user_id}/", response_model=schemas.User, tags=["user"], summary="Editar usuario")
+@api.put("/user/{user_id}/", response_model=schemas.User, tags=["user"], summary="Editar usuario")
 def edit_user(user_id: int, user: schemas.UserCreate, db: Session = Depends(get_db), token: str = Depends(auth_services.oauth2_scheme)):
     try:
         res = services.edit_user(db, user_id, user)

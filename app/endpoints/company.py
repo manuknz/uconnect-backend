@@ -20,13 +20,13 @@ logger = logging.getLogger(__name__)
 #     return current_company
 
 
-@api.get("/companys/all/", response_model=List[schemas.Company], tags=["company"], summary="Obtener todas las empresas")
+@api.get("/company/all/", response_model=List[schemas.Company], tags=["company"], summary="Obtener todas las empresas")
 def get_companys(db: Session = Depends(get_db), token: str = Depends(auth_services.oauth2_scheme)):
     companys = services.get_companys(db)
     return companys
 
 
-@api.get("/companys/email/{email}/", response_model=schemas.Company, tags=["company"], summary="Obtener empresa por correo")
+@api.get("/company/email/{email}/", response_model=schemas.Company, tags=["company"], summary="Obtener empresa por correo")
 async def get_company_by_mail(email: str, db: Session = Depends(get_db), token: str = Depends(auth_services.oauth2_scheme)):
     company = services.get_company_by_email(db, email)
     logger.info(vars(company))
@@ -56,7 +56,7 @@ def create_company(company: schemas.CompanyCreate, db: Session = Depends(get_db)
             status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value)
 
 
-@api.post("/companys/recover-password/", tags=["company"], summary="Recuperar contraseña")
+@api.post("/company/recover-password/", tags=["company"], summary="Recuperar contraseña")
 async def recover_password(data: pass_schemas.PasswordEmail, db: Session = Depends(get_db)):
     try:
         company_password_code = services.get_password_reset_code(db, data.email)
@@ -75,7 +75,7 @@ async def recover_password(data: pass_schemas.PasswordEmail, db: Session = Depen
         raise HTTPException(status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value)
 
 
-@api.put("/companys/{company_id}/", response_model=schemas.Company, tags=["company"])
+@api.put("/company/{company_id}/", response_model=schemas.Company, tags=["company"])
 def edit_company(company_id: int, company: schemas.CompanyBase, db: Session = Depends(get_db), token: str = Depends(auth_services.oauth2_scheme)):
     try:
         res = services.edit_company(db, company_id, company)
