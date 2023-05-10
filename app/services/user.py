@@ -35,12 +35,9 @@ def create_user(db: Session, user: schemas.UserCreate):
     phone_number = user.phone_number
     career = user.career
     if phone_number:
-        logger.info("Entre al if de phone number")
         phone_number = phone_number.strip()
     if career:
-        logger.info("Entre al if de career")
         db_career = career_services.get_career_by_name(db, career)
-        logger.info(db_career.name)
         db_user = models.User(email=user.email.lower(), password=hashed_password,
                               full_name=user.full_name, phone_number=phone_number, 
                               career_id=db_career.id)
