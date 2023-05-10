@@ -10,6 +10,14 @@ class FileCreate(BaseModel):
         orm_mode: True
 
 
+class FileResponse(BaseModel):
+    file_id: int
+    content_type: str
+
+    class Config:
+        orm_mode: True
+
+
 class File(FileCreate):
     id: int
 
