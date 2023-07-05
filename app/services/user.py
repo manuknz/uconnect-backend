@@ -25,7 +25,11 @@ def get_user_by_id(db: Session, user_id: int):
 
 
 def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(func.lower(models.User.email) == email.lower()).first()
+    return (
+        db.query(models.User)
+        .filter(func.lower(models.User.email) == email.lower())
+        .first()
+    )
 
 
 def create_user(db: Session, user: schemas.UserCreate):
@@ -38,9 +42,14 @@ def create_user(db: Session, user: schemas.UserCreate):
         phone_number = phone_number.strip()
     if career:
         db_career = career_services.get_career_by_name(db, career)
-        db_user = models.User(email=user.email.lower(), password=hashed_password,
-                              full_name=user.full_name, phone_number=phone_number, 
-                              career_id=db_career.id)
+        db_user = models.User(
+            email=user.email.lower(),
+            password=hashed_password,
+            full_name=user.full_name,
+            phone_number=phone_number,
+            career_id=db_career.id,
+            file_id=None,
+        )
         logger.info(db_user.email)
         db.add(db_user)
         db.flush()
@@ -63,16 +72,23 @@ def edit_user(db: Session, user_id: int, user: schemas.UserCreate):
         db.flush()
         return db_user
     except Exception:
-        raise HTTPException(status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value)
+        raise HTTPException(
+            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+        )
 
 
 def get_password_reset_code(db: Session, user_email: str):
     db_user = get_user_by_email(db, user_email)
-    if (db_user):
-        plain_password_code = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(16))
+    if db_user:
+        plain_password_code = "".join(
+            secrets.choice(string.ascii_uppercase + string.digits) for _ in range(16)
+        )
         hashed_password = auth_services.get_password_hash(plain_password_code)
         db_user.password_reset_code = hashed_password
         db.flush()
-        return {'user': db_user, 'password_code': plain_password_code}
+        return {"user": db_user, "password_code": plain_password_code}
     else:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El correo ingresado no se encuentra registrado.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El correo ingresado no se encuentra registrado.",
+        )
