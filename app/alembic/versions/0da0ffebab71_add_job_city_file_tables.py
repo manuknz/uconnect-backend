@@ -34,7 +34,7 @@ def upgrade() -> None:
                     sa.Column('company_id', sa.Integer, sa.ForeignKey('company.id'), nullable=False),
                     sa.Column('career_id', sa.Integer, sa.ForeignKey('career.id'), nullable=False),
                     sa.Column('city_id', sa.Integer, sa.ForeignKey('city.id'), nullable=False),
-                    sa.Column('file_id', sa.Integer, sa.ForeignKey('file.id'), nullable=False))
+                    sa.Column('file_id', sa.Integer, sa.ForeignKey('file.id'), nullable=True))
     op.add_column('users', sa.Column('file_id', sa.Integer(), sa.ForeignKey('file.id'), nullable=True))
     op.rename_table('users', 'user')
 
