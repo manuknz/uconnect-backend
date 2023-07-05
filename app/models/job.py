@@ -20,14 +20,24 @@ class Job(Base):
     company_id = Column(Integer, ForeignKey("company.id"))
     career_id = Column(Integer, ForeignKey("career.id"))
     city_id = Column(Integer, ForeignKey("city.id"))
-    file_id = Column(Integer, ForeignKey("file.id"))
+    file_id = Column(Integer, ForeignKey("file.id"), nullable=True)
 
-    company = relationship(Company, lazy='joined')
-    career = relationship(Career, lazy='joined')
+    company = relationship(Company, lazy="joined")
+    career = relationship(Career, lazy="joined")
     city = relationship(City, lazy="joined")
     file = relationship(File, lazy="joined")
 
-    def __init__(self, description, job_type, active, creation_date, company_id, career_id, city_id, file_id):
+    def __init__(
+        self,
+        description,
+        job_type,
+        active,
+        creation_date,
+        company_id,
+        career_id,
+        city_id,
+        file_id,
+    ):
         self.description = description
         self.job_type = job_type
         self.active = active

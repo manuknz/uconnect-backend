@@ -16,10 +16,10 @@ class User(Base):
     phone_number = Column(String)
     password_reset_code = Column(String, nullable=True)
     career_id = Column(Integer, ForeignKey("career.id"))
-    file_id = Column(Integer, ForeignKey("file.id"))
+    file_id = Column(Integer, ForeignKey("file.id"), nullable=True)
 
-    career = relationship(Career, lazy='joined')
-    file = relationship(File, lazy='joined')
+    career = relationship(Career, lazy="joined")
+    file = relationship(File, lazy="joined")
 
     def __init__(self, email, password, full_name, phone_number, career_id, file_id):
         self.email = email
