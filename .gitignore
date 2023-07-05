@@ -1,7 +1,9 @@
 __pycache__
 .idea
+.idea/*
 .vscode
-.vscode/settings.json
+.vscode/*
 app/env
 data
+data/*
 virtenv
