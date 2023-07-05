@@ -19,11 +19,15 @@ class ErrorMessage(Enum):
     # USER
     BUSINESS_INFO_USER_EMAIL_REGISTERED = "El correo ya está registrado"
     BUSINESS_INFO_USER_ASSIGNED = "El usuario fue asignado satisfactoriamente"
-    BUSINESS_INFO_USER_STATE_UPDATED = "El estado del usuario fue actualizado satisfactoriamente"
+    BUSINESS_INFO_USER_STATE_UPDATED = (
+        "El estado del usuario fue actualizado satisfactoriamente"
+    )
 
     # CART USER
     BUSINESS_INFO_USER_REMOVED_FROM_CART = "El usuario fue eliminado del carrito"
-    BUSINESS_INFO_USER_ALREADY_ACTIVE = "El usuario ya se encuentra activo en el carrito"
+    BUSINESS_INFO_USER_ALREADY_ACTIVE = (
+        "El usuario ya se encuentra activo en el carrito"
+    )
 
     # PRODUCT
     BUSINESS_INFO_PRODUCT_ID_NULL = "El identificador del producto no puede ser nulo"
@@ -42,13 +46,19 @@ class ErrorMessage(Enum):
     BUSINESS_INFO_TAG_ASSIGNED = "Tag asignado satisfactoriamente"
 
     # ORDER
-    BUSINESS_ERROR_ORDER_CART_EXISTS = "Ya existe una orden creada para el carrito indicado"
+    BUSINESS_ERROR_ORDER_CART_EXISTS = (
+        "Ya existe una orden creada para el carrito indicado"
+    )
 
     # CART
-    BUSINESS_ERROR_CART_NAME_EXISTS = "Ya existe un carrito con este nombre para el usuario"
+    BUSINESS_ERROR_CART_NAME_EXISTS = (
+        "Ya existe un carrito con este nombre para el usuario"
+    )
 
     # SHOPPING LIST
-    BUSINESS_ERROR_ITEM_EXISTS_IN_LIST = "El producto con id {} ya existe en la lista {}"
+    BUSINESS_ERROR_ITEM_EXISTS_IN_LIST = (
+        "El producto con id {} ya existe en la lista {}"
+    )
     BUSINESS_INFO_ITEM_ADDED_SHOPPING_LIST = "Item(s) agregado(s) exitosamente"
 
     # SCHEDULE DELIVERY
