@@ -20,21 +20,40 @@ def get_careers(db: Session = Depends(get_db)):
 
 
 @api.get("/career/id/{career_id}/", tags=["career"], summary="Obtener carrera por ID")
-def get_career_by_id(career_id: int, db: Session = Depends(get_db), token: str = Depends(auth.oauth2_scheme)):
+def get_career_by_id(
+    career_id: int,
+    db: Session = Depends(get_db),
+    token: str = Depends(auth.oauth2_scheme),
+):
     db_career = services.get_career_by_id(db, career_id)
-    if (db_career):
+    if db_career:
         return db_career
 
 
-@api.get("/career/name/{career_name}/", tags=["career"], summary="Obtener carrera por nombre")
-def get_career_by_name(career_name: str, db: Session = Depends(get_db), token: str = Depends(auth.oauth2_scheme)):
+@api.get(
+    "/career/name/{career_name}/", tags=["career"], summary="Obtener carrera por nombre"
+)
+def get_career_by_name(
+    career_name: str,
+    db: Session = Depends(get_db),
+    token: str = Depends(auth.oauth2_scheme),
+):
     db_career = services.get_career_by_name(db, career_name)
-    if (db_career):
+    if db_career:
         return db_career
 
 
-@api.post("/career/", tags=["career"], summary="Agregar carrera", description="Método utilizado para adicionar carreras universitarias")
-def add_career(career: schemas.CareerCreate, db: Session = Depends(get_db), token: str = Depends(auth.oauth2_scheme)):
+@api.post(
+    "/career/",
+    tags=["career"],
+    summary="Agregar carrera",
+    description="Método utilizado para agregar carreras universitarias",
+)
+def add_career(
+    career: schemas.CareerCreate,
+    db: Session = Depends(get_db),
+    token: str = Depends(auth.oauth2_scheme),
+):
     db_career = Career(name=career.name)
     db.add(db_career)
     db.commit()
@@ -43,9 +62,14 @@ def add_career(career: schemas.CareerCreate, db: Session = Depends(get_db), toke
 
 
 @api.put("/career/{career_id}", tags=["career"], summary="Editar carrera")
-def edit_career(career_id: int, career: schemas.CareerCreate, db: Session = Depends(get_db), token: str = Depends(auth.oauth2_scheme)):
+def edit_career(
+    career_id: int,
+    career: schemas.CareerCreate,
+    db: Session = Depends(get_db),
+    token: str = Depends(auth.oauth2_scheme),
+):
     db_career = services.get_career_by_id(db, career_id)
-    if (db_career):
+    if db_career:
         db_career.name = career.name
         db.flush()
         db.commit()
@@ -54,9 +78,13 @@ def edit_career(career_id: int, career: schemas.CareerCreate, db: Session = Depe
 
 
 @api.delete("/career/{career_id}", tags=["career"], summary="Eliminar carrera")
-def delete_career(career_id: int, db: Session = Depends(get_db), token: str = Depends(auth.oauth2_scheme)):
+def delete_career(
+    career_id: int,
+    db: Session = Depends(get_db),
+    token: str = Depends(auth.oauth2_scheme),
+):
     db_career = services.get_career_by_id(db, career_id)
-    if (db_career):
+    if db_career:
         db.delete(db_career)
         db.flush()
         db.commit()

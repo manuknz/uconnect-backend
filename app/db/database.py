@@ -15,11 +15,12 @@ DATABASE_DB = dbSettings.DATABASE_DB
 DATABASE_DRIVER = dbSettings.DATABASE_DRIVER
 DATABASE_NAME = dbSettings.DATABASE_NAME
 
-UCONNECT_URL = f'{DATABASE_DB}://{DATABASE_USER}:{DATABASE_PW}@{DATABASE_URL}/{DATABASE_NAME}'
+UCONNECT_URL = (
+    f"{DATABASE_DB}://{DATABASE_USER}:{DATABASE_PW}@{DATABASE_URL}/{DATABASE_NAME}"
+)
 
 engine_uconnect = create_engine(UCONNECT_URL, pool_size=20, max_overflow=15)
-SessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine_uconnect)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine_uconnect)
 
 Base = declarative_base()
 
