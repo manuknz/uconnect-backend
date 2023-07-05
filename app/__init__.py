@@ -18,7 +18,7 @@ app = FastAPI(
 
 app_uconnect = FastAPI(
     title="uConnect",
-    description="Proyecto de Tesis uConnect APP",
+    description="Proyecto de Tesis uConnect API",
     version="0.1.0"
 )
 
@@ -27,7 +27,8 @@ app.mount("/uconnect/api", app_uconnect)
 
 log = logging.getLogger('')
 log.setLevel(logging.DEBUG)
-format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+format = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 ch = logging.StreamHandler(sys.stdout)
 ch.setFormatter(format)
@@ -35,6 +36,7 @@ log.addHandler(ch)
 
 # get root logger
 logger = logging.getLogger(__name__)
+
 
 async def log_requests(request: Request):
 
