@@ -1,6 +1,7 @@
 __pycache__
 .idea
 .vscode
+.vscode/settings.json
 app/env
 data
 virtenv
