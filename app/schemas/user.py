@@ -22,7 +22,7 @@ class UserCv(UserBase):
 class User(UserBase):
     id: int
     career_id: int
-    file_id: int
+    file_id: int = None
 
     class Config:
         orm_mode = True
