@@ -28,7 +28,6 @@ async def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=ErrorMessage.HTTP_EXCEPTION_401_INVALID_CREDENTIAL.value,
         )
-
     if authenticate.get("user"):
         user = authenticate.get("user")
         access_token_expires = timedelta(
@@ -38,7 +37,6 @@ async def login(
             data={"sub": user.email}, expires_delta=access_token_expires
         )
         return {"user": user, "access_token": access_token, "token_type": "bearer"}
-
     elif authenticate.get("company"):
         company = authenticate.get("company")
         access_token_expires = timedelta(
