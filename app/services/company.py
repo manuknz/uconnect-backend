@@ -32,13 +32,11 @@ def get_company_by_email(db: Session, email: str):
 
 
 def create_company(db: Session, company: schemas.CompanyCreate):
-    logger.info(company)
     password = company.password
     hashed_password = auth_services.get_password_hash(password)
     db_company = models.Company(
         email=company.email.lower(), password=hashed_password, name=company.name
     )
-    logger.info(db_company)
     db.add(db_company)
     db.flush()
     return db_company
@@ -49,12 +47,12 @@ def edit_company(db: Session, company_id: int, company: schemas.CompanyBase):
         db_company = get_company_by_id(db, company_id)
         db_company.email = company.email
         db_company.name = company.name
-        logger.info(f"empresa: {vars(db_company)}")
         db.flush()
         return db_company
     except Exception:
         raise HTTPException(
-            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )
 
 
@@ -71,5 +69,5 @@ def get_password_reset_code(db: Session, company_email: str):
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El correo ingresado no se encuentra registrado.",
+            detail=ErrorMessage.USER_EMAIL_NOT_FOUND.value,
         )

@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import Depends, HTTPException, UploadFile, File
+from fastapi import Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -21,33 +21,30 @@ async def create_job(
     file: Optional[UploadFile] = File(None),
     token: str = Depends(auth_services.oauth2_scheme),
 ):
-    logger.info(f"job to create: {job}")
     try:
         if file is None:
-            logger.info(f"dentro del if file None")
             img_id = None
         else:
-            logger.info(f"dentro del else file")
             if not file.content_type.endswith(
                 ("image/png", "image/jpeg", "image/webp")
             ):
                 raise HTTPException(
-                    status_code=500,
-                    detail="Formato de imagen no admitido. Formatos admitidos: PNG/JPEG/WEBP",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=ErrorMessage.IMAGE_EXTENSION_NOT_ALLOWED.value,
                 )
-            logger.info(f"antes del upload file")
             img_id = await file_services.upload_file(file, db)
 
-        logger.info(f"despues del upload file y antes del create job")
         resp = services.create_job(db=db, job=job, file_id=img_id)
-        logger.info(f"resp create job: {resp}")
         db.commit()
         return {"message": "OK"}
     except HTTPException as ex:
+        logger.exception(ex)
         db.rollback()
         raise HTTPException(status_code=ex.status_code, detail=ex.detail)
     except Exception as e:
+        logger.exception(e)
         db.rollback()
         raise HTTPException(
-            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )

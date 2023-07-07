@@ -33,7 +33,6 @@ def get_user_by_email(db: Session, email: str):
 
 
 def create_user(db: Session, user: schemas.UserCreate):
-    logger.info(user)
     password = user.password
     hashed_password = auth_services.get_password_hash(password)
     phone_number = user.phone_number
@@ -50,7 +49,6 @@ def create_user(db: Session, user: schemas.UserCreate):
             career_id=db_career.id,
             file_id=None,
         )
-        logger.info(db_user.email)
         db.add(db_user)
         db.flush()
     return db_user
@@ -73,7 +71,8 @@ def edit_user(db: Session, user_id: int, user: schemas.UserCreate):
         return db_user
     except Exception:
         raise HTTPException(
-            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )
 
 
@@ -90,5 +89,5 @@ def get_password_reset_code(db: Session, user_email: str):
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El correo ingresado no se encuentra registrado.",
+            detail=ErrorMessage.USER_EMAIL_NOT_FOUND.value,
         )

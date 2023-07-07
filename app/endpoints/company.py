@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -45,7 +45,6 @@ async def get_company_by_mail(
     token: str = Depends(auth_services.oauth2_scheme),
 ):
     company = services.get_company_by_email(db, email)
-    logger.info(vars(company))
     return company
 
 
@@ -54,23 +53,25 @@ def create_company(company: schemas.CompanyCreate, db: Session = Depends(get_db)
     try:
         db_company = services.get_company_by_email(db=db, email=company.email)
         if db_company:
-            logger.info(f"db_company: {db_company}")
             raise HTTPException(
-                status_code=400,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail=ErrorMessage.USER_EMAIL_REGISTERED.value,
             )
 
         resp = services.create_company(db=db, company=company)
-        logger.info(f"resp create company: {resp}")
         db.commit()
         return {"message": "OK"}
+
     except HTTPException as ex:
+        logger.exception(ex.detail)
         db.rollback()
         raise HTTPException(status_code=ex.status_code, detail=ex.detail)
     except Exception as e:
+        logger.exception(e)
         db.rollback()
         raise HTTPException(
-            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )
 
 
@@ -89,6 +90,7 @@ async def recover_password(
         return await email_services.send_password_recovery_email(
             name, email, password_reset_code
         )
+
     except HTTPException as ex:
         db.rollback()
         logger.exception(ex.detail)
@@ -97,7 +99,8 @@ async def recover_password(
         db.rollback()
         logger.exception(ErrorMessage.HTTP_EXCEPTION_404.value)
         raise HTTPException(
-            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )
 
 
@@ -120,5 +123,6 @@ def edit_company(
         db.rollback()
         logging.exception(ErrorMessage.HTTP_EXCEPTION_500.value)
         raise HTTPException(
-            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )

@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -45,7 +45,6 @@ async def get_user_by_mail(
     token: str = Depends(auth_services.oauth2_scheme),
 ):
     user = services.get_user_by_email(db, email)
-    logger.info(vars(user))
     return user
 
 
@@ -53,24 +52,25 @@ async def get_user_by_mail(
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     try:
         db_user = services.get_user_by_email(db=db, email=user.email)
-        logger.info(f"db_user: {db_user}")
         if db_user:
             raise HTTPException(
-                status_code=400,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail=ErrorMessage.USER_EMAIL_REGISTERED.value,
             )
 
         resp = services.create_user(db=db, user=user)
-        logger.info(f"resp create user: {resp}")
         db.commit()
         return {"message": "OK"}
     except HTTPException as ex:
+        logger.exception(ex)
         db.rollback()
         raise HTTPException(status_code=ex.status_code, detail=ex.detail)
     except Exception as e:
+        logger.exception(e)
         db.rollback()
         raise HTTPException(
-            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )
 
 
@@ -95,7 +95,8 @@ async def recover_password(
         db.rollback()
         logger.exception(ErrorMessage.HTTP_EXCEPTION_404.value)
         raise HTTPException(
-            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )
 
 
@@ -123,5 +124,6 @@ def edit_user(
         db.rollback()
         logging.exception(ErrorMessage.HTTP_EXCEPTION_500.value)
         raise HTTPException(
-            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )

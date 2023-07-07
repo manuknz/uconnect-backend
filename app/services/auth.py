@@ -10,6 +10,7 @@ from app.env.env import HashSettings
 from app.models import career
 from app.services import user as user_services
 from app.services import company as company_services
+from app.utils.ErrorMessage import ErrorMessage
 
 
 hash_variables = HashSettings()
@@ -87,7 +88,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail=ErrorMessage.HTTP_EXCEPTION_401.value,
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -107,7 +108,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 async def get_current_company(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail=ErrorMessage.HTTP_EXCEPTION_401.value,
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:

@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import Depends, HTTPException, UploadFile, File
+from fastapi import Depends, HTTPException, UploadFile, File, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -53,24 +53,30 @@ async def upload_file(
             ("image/png", "image/jpeg", "image/webp", "application/pdf")
         ):
             raise HTTPException(
-                status_code=500,
-                detail="Formato de archivo no permitido. Formatos permitidos: PNG/JPEG/WEBP/PDF",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ErrorMessage.FILE_INVALID_FORMAT.value,
             )
         db_file = await services.upload_file(file, db)
         return db_file
     except HTTPException as ex:
+        logger.exception(ex)
         db.rollback()
         raise HTTPException(status_code=ex.status_code, detail=ex.detail)
     except Exception as e:
+        logger.exception(e)
         db.rollback()
         raise HTTPException(
-            status_code=500, detail=ErrorMessage.HTTP_EXCEPTION_500.value
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )
 
 
 @api.delete("/file/delete/{file_id}/", tags=["file"], summary="Eliminar un archivo")
 async def delete_file(file_id: int, db: Session = Depends(get_db)):
     if not services.delete_file(db, file_id):
-        raise HTTPException(status_code=404, detail="El archivo no existe.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ErrorMessage.FILE_NOT_FOUND.value,
+        )
 
-    return {"detail": "Archivo eliminado"}
+    return {ErrorMessage.FILE_DELETED.value}

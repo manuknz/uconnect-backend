@@ -3,6 +3,7 @@ import logging
 from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 from app.models import File
+from app.utils.ErrorMessage import ErrorMessage
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,10 @@ def get_files(db: Session):
 def get_file_by_id(file_id: int, db: Session):
     file = db.query(File).filter(File.id == file_id).first()
     if not file:
-        raise HTTPException(status_code=404, detail="Archivo no encontrado")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ErrorMessage.FILE_NOT_FOUND.value,
+        )
 
     return file
 
@@ -40,13 +44,13 @@ async def upload_file(file: UploadFile, db: Session):
     except FileNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="El archivo no se encontró en el servidor",
+            detail=ErrorMessage.FILE_NOT_FOUND.value,
         )
     except Exception as e:
-        logger.error(f"{e}")
+        logger.error(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor",
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
         )
 
 
