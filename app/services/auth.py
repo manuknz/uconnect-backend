@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 
 from app.env.env import HashSettings
+from app.models import career
 from app.services import user as user_services
 from app.services import company as company_services
 
@@ -32,18 +33,42 @@ def authenticate_user(db, username: str, password: str):
         return False
 
     if not user:
-        if not verify_password(password, company.password) and not verify_password(password, company.password_reset_code):
-            log.info(f'Comparar contraseñas empresa: {verify_password(password, company.password)}')
+        if not verify_password(password, company.password) and not verify_password(
+            password, company.password_reset_code
+        ):
+            log.info(
+                f"Comparar contraseñas empresa: {verify_password(password, company.password)}"
+            )
             return False
-        
-        return {'company': company}
-    
+
+        del (
+            company.password,
+            company.password_reset_code,
+        )
+
+        return {"company": company}
+
     if not company:
-        if not verify_password(password, user.password) and not verify_password(password, user.password_reset_code):
-            log.info(f'Comparar contraseñas estudiante: {verify_password(password, user.password)}')
+        if not verify_password(password, user.password) and not verify_password(
+            password, user.password_reset_code
+        ):
+            log.info(
+                f"Comparar contraseñas estudiante: {verify_password(password, user.password)}"
+            )
             return False
-        
-        return {'user': user}
+
+        user.career_name = user.career.name
+
+        del (
+            user.career,
+            user.career_id,
+            user.file,
+            user.file_id,
+            user.password,
+            user.password_reset_code,
+        )
+
+        return {"user": user}
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -53,18 +78,22 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, hash_variables.SECRET_KEY,
-                             algorithm=hash_variables.ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, hash_variables.SECRET_KEY, algorithm=hash_variables.ALGORITHM
+    )
     return encoded_jwt
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                          detail="Could not validate credentials",
-                                          headers={"WWW-Authenticate": "Bearer"},)
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
-        payload = jwt.decode(token, hash_variables.SECRET_KEY,
-                             algorithms=[hash_variables.ALGORITHM])
+        payload = jwt.decode(
+            token, hash_variables.SECRET_KEY, algorithms=[hash_variables.ALGORITHM]
+        )
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
@@ -76,12 +105,15 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 async def get_current_company(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                          detail="Could not validate credentials",
-                                          headers={"WWW-Authenticate": "Bearer"},)
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
-        payload = jwt.decode(token, hash_variables.SECRET_KEY,
-                             algorithms=[hash_variables.ALGORITHM])
+        payload = jwt.decode(
+            token, hash_variables.SECRET_KEY, algorithms=[hash_variables.ALGORITHM]
+        )
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception

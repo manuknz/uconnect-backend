@@ -36,7 +36,10 @@ async def login(
         access_token = auth_services.create_access_token(
             data={"sub": user.email}, expires_delta=access_token_expires
         )
-        return {"user": user, "access_token": access_token, "token_type": "bearer"}
+        return {
+            "user": user,
+            "access_token": access_token,
+        }
     elif authenticate.get("company"):
         company = authenticate.get("company")
         access_token_expires = timedelta(
@@ -48,5 +51,4 @@ async def login(
         return {
             "company": company,
             "access_token": access_token,
-            "token_type": "bearer",
         }
