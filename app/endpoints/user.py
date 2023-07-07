@@ -10,7 +10,7 @@ from app.schemas import user as schemas
 from app.schemas import password as pass_schemas
 from app.services import user as services
 from app.services import auth as auth_services
-from app.services import email as email_services
+from app.services import email_services
 
 logger = logging.getLogger(__name__)
 
