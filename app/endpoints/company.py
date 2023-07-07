@@ -57,7 +57,7 @@ def create_company(company: schemas.CompanyCreate, db: Session = Depends(get_db)
             logger.info(f"db_company: {db_company}")
             raise HTTPException(
                 status_code=400,
-                detail=ErrorMessage.BUSINESS_INFO_USER_EMAIL_REGISTERED.value,
+                detail=ErrorMessage.USER_EMAIL_REGISTERED.value,
             )
 
         resp = services.create_company(db=db, company=company)

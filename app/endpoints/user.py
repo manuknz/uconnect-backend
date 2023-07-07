@@ -57,7 +57,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         if db_user:
             raise HTTPException(
                 status_code=400,
-                detail=ErrorMessage.BUSINESS_INFO_USER_EMAIL_REGISTERED.value,
+                detail=ErrorMessage.USER_EMAIL_REGISTERED.value,
             )
 
         resp = services.create_user(db=db, user=user)
