@@ -24,6 +24,7 @@ class ErrorMessage(Enum):
 
     # JOB
     JOB_NOT_FOUND = "La oferta de trabajo no existe"
+    JOB_COMPANY_NOT_FOUND = "La empresa no cuenta con ofertas de trabajo"
     JOB_STATE_UPDATED = "La oferta de trabajo fue actualizada satisfactoriamente"
 
     # CAREER

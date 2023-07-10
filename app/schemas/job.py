@@ -40,11 +40,48 @@ class JobCreateForm(BaseModel):
         )
 
 
+class JobEditForm(BaseModel):
+    description: str
+    job_type: str
+    career: str
+    city: str
+
+    @classmethod
+    def as_form(
+        cls,
+        description: str = Form(...),
+        job_type: str = Form(...),
+        career: str = Form(...),
+        city: str = Form(...),
+    ) -> "JobEditForm":
+        return cls(
+            description=description,
+            job_type=job_type,
+            career=career,
+            city=city,
+        )
+
+
 class Job(JobCreate):
     id: int
     active: bool
     city_id: int
     career_id: int
+    file_id: int = None
+    creation_date: date
+
+    class Config:
+        orm_mode = True
+
+
+class JobResponse(BaseModel):
+    id: int
+    description: str
+    job_type: str
+    career_name: str
+    city_name: str
+    company_id: int
+    active: bool
     file_id: int = None
     creation_date: date
 

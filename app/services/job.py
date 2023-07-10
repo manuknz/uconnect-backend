@@ -19,7 +19,7 @@ from app.utils.ErrorMessage import ErrorMessage
 logger = logging.getLogger(__name__)
 
 
-def get_jobs(db: Session, career_id: int, job_type: str, skills: List[str]):
+def get_jobs(db: Session, career_id: int, job_type: str):
     query = db.query(models.Job).filter(models.Job.active == True)
     if career_id is not None:
         query = query.filter(models.Job.career_id == career_id)
@@ -27,25 +27,53 @@ def get_jobs(db: Session, career_id: int, job_type: str, skills: List[str]):
         query = query.filter(models.Job.job_type == job_type)
     result = query.all()
 
+    for job in result:
+        job.career_name = str(job.career.name)
+        job.city_name = str(job.city.name)
+        del (job.career, job.city)
+
     return result
 
 
-def get_job_by_id(db: Session, job_id: int):
-    return db.query(models.Job).filter(models.Job.id == job_id).first()
+def get_job_by_id(db: Session, job_id: int, full: bool = False):
+    try:
+        query = db.query(models.Job).filter(models.Job.id == job_id).first()
+        if not full:
+            query.career_name = str(query.career.name)
+            query.city_name = str(query.city.name)
+            del (query.career, query.city, query.company, query.file)
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ErrorMessage.JOB_NOT_FOUND.value,
+        )
+    return query
 
 
 def get_jobs_by_company_id(db: Session, company_id: int):
-    query = db.query(models.Job).filter(models.Job.active == True)
-    company = company_services.get_company_by_id(db, company_id)
+    try:
+        query = db.query(models.Job).filter(models.Job.active == True)
+        company = company_services.get_company_by_id(db, company_id)
 
-    if company is None:
+        if company is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=ErrorMessage.HTTP_EXCEPTION_401_COMPANY_DOESNT_EXIST.value,
+            )
+
+        query.filter(models.Job.company_id == company.id)
+        result = query.all()
+
+        for job in result:
+            job.career_name = str(job.career.name)
+            job.city_name = str(job.city.name)
+            del (job.career, job.city)
+    except:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=ErrorMessage.HTTP_EXCEPTION_401_COMPANY_DOESNT_EXIST.value,
+            detail=ErrorMessage.JOB_COMPANY_NOT_FOUND.value,
         )
 
-    query.filter(models.Job.company_id == company.id)
-    result = query.all()
     return result
 
 
@@ -94,3 +122,52 @@ def create_job(db: Session, job: schemas.JobCreateForm, file_id: int):
     db.add(db_job)
     db.flush()
     return db_job
+
+
+def edit_job(db: Session, job_id: int, job: schemas.JobEditForm, img_id: int):
+    try:
+        career = job.career
+        city = job.city
+        if career:
+            try:
+                career_id = career_services.get_career_by_name(db, career).id
+            except:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=ErrorMessage.CAREER_NOT_FOUND.value,
+                )
+        if city:
+            try:
+                city_id = city_services.get_city_by_name(db, city).id
+            except:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=ErrorMessage.CITY_NOT_FOUND.value,
+                )
+        db_job = get_job_by_id(db, job_id, True)
+        if img_id:
+            db_job.file_id = img_id
+        db_job.description = job.description
+        db_job.job_type = job.job_type
+        db_job.career_id = career_id
+        db_job.city_id = city_id
+        db.flush()
+        return db_job
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
+        )
+
+
+def delete_job(db: Session, job_id: int):
+    try:
+        db_job = get_job_by_id(db, job_id, True)
+        db_job.active = False
+        db.flush()
+        return {"message": ErrorMessage.INFO_GENERAL_DELETED.value}
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
+        )
