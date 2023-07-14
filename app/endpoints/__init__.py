@@ -19,7 +19,7 @@ def get_db():
 from .auth import login
 from .user import get_users
 from .company import get_companys
-from .job import create_job
+from .job import get_jobs
 from .file import upload_file
 from .career import get_careers
 from .city import get_cities

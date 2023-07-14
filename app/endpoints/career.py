@@ -61,7 +61,7 @@ def add_career(
     return db_career
 
 
-@api.put("/career/{career_id}", tags=["career"], summary="Editar carrera")
+@api.put("/career/{career_id}/", tags=["career"], summary="Editar carrera")
 def edit_career(
     career_id: int,
     career: schemas.CareerCreate,
@@ -77,7 +77,7 @@ def edit_career(
         return db_career
 
 
-@api.delete("/career/{career_id}", tags=["career"], summary="Eliminar carrera")
+@api.delete("/career/{career_id}/", tags=["career"], summary="Eliminar carrera")
 def delete_career(
     career_id: int,
     db: Session = Depends(get_db),

@@ -54,7 +54,7 @@ def add_city(
     return db_city
 
 
-@api.put("/city/{city_id}", tags=["city"], summary="Editar ciudad")
+@api.put("/city/{city_id}/", tags=["city"], summary="Editar ciudad")
 def edit_city(
     city_id: int,
     city: schemas.CityCreate,
@@ -70,7 +70,7 @@ def edit_city(
         return db_city
 
 
-@api.delete("/city/{city_id}", tags=["city"], summary="Eliminar ciudad")
+@api.delete("/city/{city_id}/", tags=["city"], summary="Eliminar ciudad")
 def delete_city(
     city_id: int,
     db: Session = Depends(get_db),

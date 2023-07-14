@@ -4,7 +4,7 @@ from enum import Enum
 class ErrorMessage(Enum):
     HTTP_EXCEPTION_401 = "No se pudo validar las credenciales"
     HTTP_EXCEPTION_401_USER_DOESNT_EXIST = "El usuario no existe"
-    HTTP_EXCEPTION_401_COMPANY_DOESNT_EXIST = "El usuario no existe"
+    HTTP_EXCEPTION_401_COMPANY_DOESNT_EXIST = "La empresa no existe"
     HTTP_EXCEPTION_401_INVALID_CREDENTIAL = "Credenciales incorrectas"
     HTTP_EXCEPTION_403 = "No autenticado"
     HTTP_EXCEPTION_404 = "No se encuentra la entidad solicitada"
