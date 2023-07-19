@@ -119,53 +119,6 @@ def get_jobs_by_company_id(db: Session, company_id: int):
     return result
 
 
-def create_job(db: Session, job: schemas.JobCreateForm, file_id: int):
-    career = career_services.get_career_by_name(db, job.career)
-    city = city_services.get_city_by_name(db, job.city)
-
-    if career is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=ErrorMessage.CAREER_NOT_FOUND.value,
-        )
-
-    if city is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=ErrorMessage.CITY_NOT_FOUND.value,
-        )
-
-    today = datetime.today().date()
-    job_created_at = today.strftime("%Y-%m-%d")
-
-    if file_id is None:
-        db_job = models.Job(
-            description=job.description,
-            job_type=job.job_type,
-            active=True,
-            creation_date=job_created_at,
-            company_id=job.company_id,
-            career_id=career.id,
-            city_id=city.id,
-            file_id=None,
-        )
-    else:
-        db_job = models.Job(
-            description=job.description,
-            job_type=job.job_type,
-            active=True,
-            creation_date=job_created_at,
-            company_id=job.company_id,
-            career_id=career.id,
-            city_id=city.id,
-            file_id=file_id,
-        )
-
-    db.add(db_job)
-    db.flush()
-    return db_job
-
-
 def skill_encoder(obj):
     if isinstance(obj, schemas.Skill):
         return obj.__dict__

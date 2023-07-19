@@ -63,42 +63,6 @@ def get_job_by_id(
     return jobs
 
 
-# @api.post("/job/", tags=["job"], summary="Crear una oferta de trabajo")
-# async def create_job(
-#     job: schemas.JobCreateForm = Depends(schemas.JobCreateForm.as_form),
-#     db: Session = Depends(get_db),
-#     file: Optional[UploadFile] = File(None),
-#     token: str = Depends(auth_services.oauth2_scheme),
-# ):
-#     try:
-#         if file is None:
-#             img_id = None
-#         else:
-#             if not file.content_type.endswith(
-#                 ("image/png", "image/jpeg", "image/webp")
-#             ):
-#                 raise HTTPException(
-#                     status_code=status.HTTP_400_BAD_REQUEST,
-#                     detail=ErrorMessage.IMAGE_EXTENSION_NOT_ALLOWED.value,
-#                 )
-#             img_id = await file_services.upload_file(file, db)
-
-#         resp = services.create_job(db=db, job=job, file_id=img_id)
-#         db.commit()
-#         return {"message": "OK"}
-#     except HTTPException as ex:
-#         logger.exception(ex)
-#         db.rollback()
-#         raise HTTPException(status_code=ex.status_code, detail=ex.detail)
-#     except Exception as e:
-#         logger.exception(e)
-#         db.rollback()
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             detail=ErrorMessage.HTTP_EXCEPTION_500.value,
-#         )
-
-
 @api.post(
     "/job/create/", tags=["job"], summary="Crear una oferta de trabajo, sin imagen"
 )
