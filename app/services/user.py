@@ -1,3 +1,4 @@
+import json
 import secrets
 import string
 import logging
@@ -17,19 +18,55 @@ logger = logging.getLogger(__name__)
 
 
 def get_users(db: Session):
-    return db.query(models.User).all()
+    query = db.query(models.User).all()
+
+    for user in query:
+        if user.skill is not None:
+            try:
+                user.skill = json.loads(user.skill)
+                user.skills = user.skill
+                del user.skill
+            except json.JSONDecodeError:
+                user.skill = None
+
+    return query
 
 
 def get_user_by_id(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if user.skill is not None:
+        try:
+            user.skill = json.loads(user.skill)
+            user.skills = user.skill
+            del user.skill
+        except json.JSONDecodeError:
+            user.skill = None
+
+    return user
 
 
 def get_user_by_email(db: Session, email: str):
-    return (
+    user = (
         db.query(models.User)
         .filter(func.lower(models.User.email) == email.lower())
         .first()
     )
+
+    if user.skill is not None:
+        try:
+            user.skill = json.loads(user.skill)
+            user.skills = user.skill
+            del user.skill
+        except json.JSONDecodeError:
+            user.skill = None
+    return user
+
+
+def skill_encoder(obj):
+    if isinstance(obj, schemas.Skill):
+        return obj.__dict__
+    raise TypeError(f"Objeto del tipo {type(obj).__name__} no es JSON serializable")
 
 
 def create_user(db: Session, user: schemas.UserCreate):
@@ -67,6 +104,14 @@ def edit_user(db: Session, user_id: int, user: schemas.UserCreate):
         db_user.full_name = user.full_name
         db_user.phone_number = phone_number
         db_user.career_id = career_id
+        if user.skills is not None:
+            db_user.skills = json.dumps(user.skills, default=skill_encoder)
+            db_user.skill = db_user.skills
+            del db_user.skills
+        else:
+            db_user.skill = None
+            del db_user.skills
+
         db.flush()
         return db_user
     except Exception:

@@ -102,7 +102,6 @@ async def recover_password(
 
 @api.put(
     "/user/{user_id}/",
-    response_model=schemas.User,
     tags=["user"],
     summary="Editar usuario",
 )
@@ -115,7 +114,7 @@ def edit_user(
     try:
         res = services.edit_user(db, user_id, user)
         db.commit()
-        return res
+        return {"message": "OK"}
     except HTTPException as ex:
         db.rollback()
         logging.exception(ex.detail)
