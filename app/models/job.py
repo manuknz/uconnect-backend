@@ -1,4 +1,13 @@
-from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, BigInteger, String
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    Date,
+    ForeignKey,
+    Integer,
+    BigInteger,
+    String,
+)
 from app.db.database import Base
 from sqlalchemy.orm import relationship
 
@@ -21,6 +30,7 @@ class Job(Base):
     career_id = Column(Integer, ForeignKey("career.id"))
     city_id = Column(Integer, ForeignKey("city.id"))
     file_id = Column(Integer, ForeignKey("file.id"), nullable=True)
+    skill = Column(JSON, nullable=True)
 
     company = relationship(Company, lazy="joined")
     career = relationship(Career, lazy="joined")
@@ -37,6 +47,7 @@ class Job(Base):
         career_id,
         city_id,
         file_id,
+        skill=None,
     ):
         self.description = description
         self.job_type = job_type
@@ -46,3 +57,4 @@ class Job(Base):
         self.career_id = career_id
         self.city_id = city_id
         self.file_id = file_id
+        self.skill = skill

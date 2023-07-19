@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, BigInteger, String
+from sqlalchemy import JSON, Column, ForeignKey, Integer, BigInteger, String
 from app.db.database import Base
 from sqlalchemy.orm import relationship
 
@@ -17,14 +17,18 @@ class User(Base):
     password_reset_code = Column(String, nullable=True)
     career_id = Column(Integer, ForeignKey("career.id"))
     file_id = Column(Integer, ForeignKey("file.id"), nullable=True)
+    skill = Column(JSON, nullable=True)
 
     career = relationship(Career, lazy="joined")
     file = relationship(File, lazy="joined")
 
-    def __init__(self, email, password, full_name, phone_number, career_id, file_id):
+    def __init__(
+        self, email, password, full_name, phone_number, career_id, file_id, skill=None
+    ):
         self.email = email
         self.password = password
         self.full_name = full_name
         self.phone_number = phone_number
         self.career_id = career_id
         self.file_id = file_id
+        self.skill = skill
