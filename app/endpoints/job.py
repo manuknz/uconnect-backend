@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import Depends, HTTPException, UploadFile, File, status
+from fastapi import Depends, HTTPException, UploadFile, File, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -21,12 +21,14 @@ logger = logging.getLogger(__name__)
     summary="Obtener todas las ofertas de trabajo, con filtros disponibles",
 )
 def get_jobs(
-    career_id: int = None,
-    job_type: str = None,
+    career_id: int = Query(None),
+    job_type: str = Query(None),
+    skills: Optional[List[str]] = Query(None),
     db: Session = Depends(get_db),
     token: str = Depends(auth_services.oauth2_scheme),
 ):
-    jobs = services.get_jobs(db, career_id, job_type)
+    jobs = services.get_jobs(db, career_id, job_type, skills)
+    logger.info(jobs[0].skill)
     return jobs
 
 
@@ -61,27 +63,52 @@ def get_job_by_id(
     return jobs
 
 
-@api.post("/job/", tags=["job"], summary="Crear una oferta de trabajo")
-async def create_job(
-    job: schemas.JobCreateForm = Depends(schemas.JobCreateForm.as_form),
+# @api.post("/job/", tags=["job"], summary="Crear una oferta de trabajo")
+# async def create_job(
+#     job: schemas.JobCreateForm = Depends(schemas.JobCreateForm.as_form),
+#     db: Session = Depends(get_db),
+#     file: Optional[UploadFile] = File(None),
+#     token: str = Depends(auth_services.oauth2_scheme),
+# ):
+#     try:
+#         if file is None:
+#             img_id = None
+#         else:
+#             if not file.content_type.endswith(
+#                 ("image/png", "image/jpeg", "image/webp")
+#             ):
+#                 raise HTTPException(
+#                     status_code=status.HTTP_400_BAD_REQUEST,
+#                     detail=ErrorMessage.IMAGE_EXTENSION_NOT_ALLOWED.value,
+#                 )
+#             img_id = await file_services.upload_file(file, db)
+
+#         resp = services.create_job(db=db, job=job, file_id=img_id)
+#         db.commit()
+#         return {"message": "OK"}
+#     except HTTPException as ex:
+#         logger.exception(ex)
+#         db.rollback()
+#         raise HTTPException(status_code=ex.status_code, detail=ex.detail)
+#     except Exception as e:
+#         logger.exception(e)
+#         db.rollback()
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail=ErrorMessage.HTTP_EXCEPTION_500.value,
+#         )
+
+
+@api.post(
+    "/job/create/", tags=["job"], summary="Crear una oferta de trabajo, sin imagen"
+)
+async def create_job_without_image(
+    job: schemas.JobCreateWithoutImage,
     db: Session = Depends(get_db),
-    file: Optional[UploadFile] = File(None),
     token: str = Depends(auth_services.oauth2_scheme),
 ):
     try:
-        if file is None:
-            img_id = None
-        else:
-            if not file.content_type.endswith(
-                ("image/png", "image/jpeg", "image/webp")
-            ):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=ErrorMessage.IMAGE_EXTENSION_NOT_ALLOWED.value,
-                )
-            img_id = await file_services.upload_file(file, db)
-
-        resp = services.create_job(db=db, job=job, file_id=img_id)
+        resp = services.create_job_without_file(db=db, job=job)
         db.commit()
         return {"message": "OK"}
     except HTTPException as ex:
@@ -104,33 +131,15 @@ async def create_job(
 )
 async def edit_job(
     job_id: int,
-    job: schemas.JobEditForm = Depends(schemas.JobEditForm.as_form),
+    job: schemas.JobEdit,
     db: Session = Depends(get_db),
-    file: Optional[UploadFile] = File(None),
     token: str = Depends(auth_services.oauth2_scheme),
 ):
     try:
-        if file is None:
-            img_id = None
-        else:
-            if not file.content_type.endswith(
-                ("image/png", "image/jpeg", "image/webp")
-            ):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=ErrorMessage.IMAGE_EXTENSION_NOT_ALLOWED.value,
-                )
-            img_id = await file_services.upload_file(file, db)
-
-        try:
-            res = services.edit_job(db, job_id, job, img_id)
-            db.commit()
-            logger.info(res)
-            return {"message": "OK"}
-        except HTTPException as ex:
-            db.rollback()
-            logging.exception(ex.detail)
-            raise HTTPException(status_code=ex.status_code, detail=ex.detail)
+        res = services.edit_job(db, job_id, job)
+        db.commit()
+        logger.info(res)
+        return {"message": "OK"}
 
     except HTTPException as ex:
         logger.exception(ex)
@@ -146,7 +155,7 @@ async def edit_job(
 
 
 @api.delete(
-    "/job/{job_id}",
+    "/job/{job_id}/",
     tags=["job"],
     summary="Eliminar oferta de trabajo",
 )

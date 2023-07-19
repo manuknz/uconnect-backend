@@ -1,7 +1,12 @@
 from datetime import date
-from typing import Any
+from typing import Any, Dict, List, Optional
 from fastapi import Form
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+
+class Skill(BaseModel):
+    skill_name: str
+    experience: str
 
 
 class JobCreate(BaseModel):
@@ -10,6 +15,18 @@ class JobCreate(BaseModel):
     career: str
     city: str
     company_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class JobCreateWithoutImage(BaseModel):
+    description: str
+    job_type: str
+    career: str
+    city: str
+    company_id: int
+    skills: Optional[List[Skill]]
 
     class Config:
         orm_mode = True
@@ -40,26 +57,15 @@ class JobCreateForm(BaseModel):
         )
 
 
-class JobEditForm(BaseModel):
+class JobEdit(BaseModel):
     description: str
     job_type: str
     career: str
     city: str
+    skills: Optional[List[Skill]]
 
-    @classmethod
-    def as_form(
-        cls,
-        description: str = Form(...),
-        job_type: str = Form(...),
-        career: str = Form(...),
-        city: str = Form(...),
-    ) -> "JobEditForm":
-        return cls(
-            description=description,
-            job_type=job_type,
-            career=career,
-            city=city,
-        )
+    class Config:
+        orm_mode = True
 
 
 class Job(JobCreate):
@@ -84,6 +90,7 @@ class JobResponse(BaseModel):
     active: bool
     file_id: int = None
     creation_date: date
+    skills: Optional[List[Skill]]
 
     class Config:
         orm_mode = True

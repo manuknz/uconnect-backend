@@ -1,10 +1,14 @@
+from typing import List
 from pydantic import BaseModel
+
+from app.schemas.job import Skill
 
 
 class UserBase(BaseModel):
     email: str
     full_name: str
     phone_number: str
+    skill: List[Skill] = None
 
     class Config:
         orm_mode = True
