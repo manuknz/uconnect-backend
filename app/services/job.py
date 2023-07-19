@@ -51,11 +51,12 @@ def get_jobs(
                             del job.skill
                             filtered_results.append(job)
                             break
+                job.skills = job.skill
+                del job.skill
             except json.JSONDecodeError:
                 job.skill = None
-    logger.info(filtered_results[0].skill)
     if filtered_results == []:
-        logger.info("No se encontraron resultados con los filtros de habilidades")
+        logger.info("No se encontraron resultados con el filtro de habilidades")
         filtered_results = result
 
     return filtered_results

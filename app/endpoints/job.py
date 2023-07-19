@@ -28,7 +28,6 @@ def get_jobs(
     token: str = Depends(auth_services.oauth2_scheme),
 ):
     jobs = services.get_jobs(db, career_id, job_type, skills)
-    logger.info(jobs[0].skill)
     return jobs
 
 
@@ -102,7 +101,6 @@ async def edit_job(
     try:
         res = services.edit_job(db, job_id, job)
         db.commit()
-        logger.info(res)
         return {"message": "OK"}
 
     except HTTPException as ex:
