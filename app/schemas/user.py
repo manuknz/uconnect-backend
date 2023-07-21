@@ -19,7 +19,7 @@ class UserCreate(UserBase):
     career: str
 
 
-class UserCv(UserBase):
+class UserCv(UserCreate):
     file_id: int
 
 

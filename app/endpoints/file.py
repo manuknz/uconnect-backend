@@ -1,4 +1,6 @@
+from enum import Enum
 import logging
+from typing import Union
 
 from fastapi import Depends, HTTPException, UploadFile, File, status
 from fastapi.responses import StreamingResponse
@@ -11,6 +13,11 @@ from app.services import file as services
 from app.services import auth as auth_services
 
 logger = logging.getLogger(__name__)
+
+
+class UserType(str, Enum):
+    user = "user"
+    job = "job"
 
 
 @api.get(
@@ -42,8 +49,12 @@ def get_file(file_id: int, db: Session = Depends(get_db)):
     )
 
 
-@api.post("/file/upload/", tags=["file"], summary="Cargar un archivo")
+@api.post(
+    "/file/upload/", tags=["file"], summary="Cargar un archivo y asignar a un usuario"
+)
 async def upload_file(
+    id: int,
+    type: UserType = UserType.user,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     token: str = Depends(auth_services.oauth2_scheme),
@@ -57,7 +68,17 @@ async def upload_file(
                 detail=ErrorMessage.FILE_INVALID_FORMAT.value,
             )
         db_file = await services.upload_file(file, db)
-        return db_file
+        if type == UserType.user:
+            services.assign_file_to_user(id, db_file, db)
+        elif type == UserType.job:
+            services.assign_file_to_job(id, db_file, db)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ErrorMessage.USER_TYPE_INVALID.value,
+            )
+
+        return {"file_id": db_file}
     except HTTPException as ex:
         logger.exception(ex)
         db.rollback()

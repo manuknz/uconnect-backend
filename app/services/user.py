@@ -53,7 +53,7 @@ def get_user_by_email(db: Session, email: str):
         .first()
     )
 
-    if user.skill is not None:
+    if user and user.skill is not None:
         try:
             user.skill = json.loads(user.skill)
             user.skills = user.skill
