@@ -160,7 +160,7 @@ def create_job_without_file(db: Session, job: schemas.JobCreateWithoutImage):
         company_id=job.company_id,
         career_id=career.id,
         city_id=city.id,
-        skill=json.dumps(job.skill, default=skill_encoder),
+        skill=json.dumps(job.skills, default=skill_encoder),
         file_id=None,
     )
 

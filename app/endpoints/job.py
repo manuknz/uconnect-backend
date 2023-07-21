@@ -73,7 +73,10 @@ async def create_job_without_image(
     try:
         resp = services.create_job_without_file(db=db, job=job)
         db.commit()
-        return {"message": "OK"}
+
+        db_job = services.get_job_by_id(db, resp.id)
+        if db_job:
+            return db_job
     except HTTPException as ex:
         logger.exception(ex)
         db.rollback()
