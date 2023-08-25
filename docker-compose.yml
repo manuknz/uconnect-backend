@@ -8,10 +8,8 @@ services:
     restart: always
     ports:
       - 5432:5432
-    environment:
-      - POSTGRES_USER=uconnect
-      - POSTGRES_PASSWORD=t3s1s2023
-      - POSTGRES_DB=uconnect_db
+    env_file:
+      - .env
     volumes:
       - ./data:/var/lib/postgresql/data
 
@@ -25,3 +23,16 @@ services:
     depends_on:
       - db
     restart: always
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Monta el archivo de configuración de Nginx
+    depends_on:
+      - server  # Dependencia para asegurarse de que el servicio FastAPI esté en funcionamiento
+    links:
+      - server:server  # Enlaza el servicio FastAPI con Nginx
