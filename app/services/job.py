@@ -117,7 +117,7 @@ def get_jobs_by_company_id(db: Session, company_id: int):
                 detail=ErrorMessage.HTTP_EXCEPTION_401_COMPANY_DOESNT_EXIST.value,
             )
 
-        query.filter(models.Job.company_id == company.id)
+        query = query.filter(models.Job.company_id == company_id)
         result = query.all()
 
         for job in result:
