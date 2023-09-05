@@ -9,6 +9,14 @@ class Skill(BaseModel):
     experience: str
 
 
+class JobUser(BaseModel):
+    email: str
+    full_name: str
+    phone_number: str
+    career: str
+    file_id: int = None
+
+
 class JobCreateWithoutImage(BaseModel):
     description: str
     job_type: str
@@ -38,11 +46,12 @@ class JobResponse(BaseModel):
     job_type: str
     career_name: str
     city_name: str
-    company_id: int
+    company_name: str
     active: bool
     file_id: int = None
     creation_date: date
     skills: Optional[List[Skill]]
+    users: Optional[List[JobUser]]
 
     class Config:
         orm_mode = True

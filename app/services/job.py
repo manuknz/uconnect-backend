@@ -1,20 +1,18 @@
 from datetime import datetime
 import json
 import logging
-from tkinter import N
 from typing import List, Optional
-from fastapi import HTTPException, UploadFile, File, status
-from sqlalchemy import and_, exists, func, or_
+from fastapi import HTTPException, status
 
 from sqlalchemy.orm import Session
 
-from app.models import career, job as models
+from app.models import job as models
 from app.schemas import job as schemas
 
 from app.services import career as career_services
 from app.services import city as city_services
 from app.services import company as company_services
-from app.services import file as file_services
+from app.services import user as user_services
 from app.utils.ErrorMessage import ErrorMessage
 
 
@@ -33,9 +31,11 @@ def get_jobs(
 
     filtered_results = []
     for job in result:
+        company = company_services.get_company_by_id(db, job.company_id)
+        job.company_name = str(company.name)
         job.career_name = str(job.career.name)
         job.city_name = str(job.city.name)
-        del (job.career, job.city)
+        del (job.company_id, job.career, job.city)
         if job.skill is not None:
             try:
                 job.skill = json.loads(job.skill)
@@ -55,6 +55,13 @@ def get_jobs(
                 del job.skill
             except json.JSONDecodeError:
                 job.skill = None
+        if job.user is not None:
+            try:
+                job.user = json.loads(job.user)
+                job.users = job.user
+                del job.user
+            except json.JSONDecodeError:
+                job.user = None
     if filtered_results == []:
         logger.info("No se encontraron resultados con el filtro de habilidades")
         filtered_results = result
@@ -67,9 +74,16 @@ def get_job_by_id(db: Session, job_id: int, full: bool = False):
         query = db.query(models.Job).filter(models.Job.id == job_id).first()
         if query is not None:
             if not full:
+                query.company_name = str(query.company.name)
                 query.career_name = str(query.career.name)
                 query.city_name = str(query.city.name)
-                del (query.career, query.city, query.company, query.file)
+                del (
+                    query.career,
+                    query.city,
+                    query.company,
+                    query.file,
+                    query.company_id,
+                )
             if query.skill is not None:
                 try:
                     query.skill = json.loads(query.skill)
@@ -77,6 +91,13 @@ def get_job_by_id(db: Session, job_id: int, full: bool = False):
                     del query.skill
                 except json.JSONDecodeError:
                     query.skill = None
+            if query.user is not None:
+                try:
+                    query.user = json.loads(query.user)
+                    query.users = query.user
+                    del query.user
+                except json.JSONDecodeError:
+                    query.user = None
     except:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -100,9 +121,10 @@ def get_jobs_by_company_id(db: Session, company_id: int):
         result = query.all()
 
         for job in result:
+            job.company_name = str(company.name)
             job.career_name = str(job.career.name)
             job.city_name = str(job.city.name)
-            del (job.career, job.city)
+            del (job.company, job.career, job.city)
             if job.skill is not None:
                 try:
                     job.skill = json.loads(job.skill)
@@ -110,6 +132,13 @@ def get_jobs_by_company_id(db: Session, company_id: int):
                     del job.skill
                 except json.JSONDecodeError:
                     job.skill = None
+            if job.user is not None:
+                try:
+                    job.user = json.loads(job.user)
+                    job.users = job.user
+                    del job.user
+                except json.JSONDecodeError:
+                    job.user = None
 
     except:
         raise HTTPException(
@@ -160,13 +189,80 @@ def create_job_without_file(db: Session, job: schemas.JobCreateWithoutImage):
         company_id=job.company_id,
         career_id=career.id,
         city_id=city.id,
-        skill=json.dumps(job.skills, default=skill_encoder),
+        skill=json.dumps(job.skills, default=skill_encoder)
+        if job.skills is not None
+        else None,
+        user=None,
         file_id=None,
     )
 
     db.add(db_job)
     db.flush()
     return db_job
+
+
+def apply_job(db: Session, job_id: int, user: str):
+    try:
+        db_user = user_services.get_user_by_email(db, user)
+        if db_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=ErrorMessage.HTTP_EXCEPTION_401_USER_DOESNT_EXIST.value,
+            )
+
+        job_user = schemas.JobUser(
+            email=db_user.email,
+            full_name=db_user.full_name,
+            phone_number=db_user.phone_number,
+            career=db_user.career.name,
+            file_id=db_user.file_id,
+        )
+
+        job = db.query(models.Job).filter(models.Job.id == job_id).first()
+        if not job:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=ErrorMessage.JOB_NOT_FOUND.value,
+            )
+
+        db_company = company_services.get_company_by_id(db, job.company_id)
+        if db_company is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=ErrorMessage.HTTP_EXCEPTION_401_COMPANY_DOESNT_EXIST.value,
+            )
+
+        db_career = career_services.get_career_by_id(db, db_user.career_id)
+        if db_career is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=ErrorMessage.HTTP_EXCEPTION_401_COMPANY_DOESNT_EXIST.value,
+            )
+
+        user_list = json.loads(job.user) if job.user else []
+        for user in user_list:
+            if user["email"] == job_user.email:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=ErrorMessage.JOB_NOT_FOUND.value,
+                )
+
+        user_list.append(job_user.dict())
+
+        job.user = json.dumps(user_list)
+
+        return {
+            "company_name": db_company.name,
+            "user_name": db_user.full_name,
+            "career_name": db_career.name,
+            "job_date": job.creation_date.strftime("%Y-%m-%d"),
+            "email": db_company.email,
+        }
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
+        )
 
 
 def edit_job(
@@ -206,6 +302,13 @@ def edit_job(
         else:
             db_job.skill = None
             del db_job.skills
+
+        if db_job.users is not None:
+            db_job.user = json.dumps(db_job.users)
+            del db_job.users
+        else:
+            db_job.user = None
+            del db_job.users
 
         db.flush()
         return db_job

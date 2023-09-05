@@ -38,3 +38,27 @@ async def send_password_recovery_email(full_name, email, password_reset_code):
     """
     )
     return await send_email(subject, message, email)
+
+
+async def send_user_job_applied_email(
+    company_name, user_name, career_name, job_date, email
+):
+    subject = "uConnect APP - Nuevo aplicante a tu vacante"
+    message = (
+        """
+    <html>
+        <div>Hola """
+        + company_name
+        + """! </div>
+        <div style="font-weight: bold; margin-top: 1rem; margin-bottom: 1rem">El estudiante """
+        + user_name
+        + """, de la carrera """
+        + career_name
+        + """, ha aplicado a tu oferta laboral creada el """
+        + job_date
+        + """. </div>
+        <div>Ingresa a la APP para ver mas detalles del aplicante!</div>
+    </html>
+    """
+    )
+    return await send_email(subject, message, email)

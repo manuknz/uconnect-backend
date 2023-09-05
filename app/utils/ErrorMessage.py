@@ -26,6 +26,7 @@ class ErrorMessage(Enum):
     JOB_NOT_FOUND = "La oferta de trabajo no existe"
     JOB_COMPANY_NOT_FOUND = "La empresa no cuenta con ofertas de trabajo"
     JOB_STATE_UPDATED = "La oferta de trabajo fue actualizada satisfactoriamente"
+    JOB_USER_ALREADY_APPLIED = "El usuario ya ha aplicado a esta oferta de trabajo"
 
     # CAREER
     CAREER_NOT_FOUND = "La carrera no existe"

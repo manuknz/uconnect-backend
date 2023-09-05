@@ -7,7 +7,7 @@ from typing import List, Optional
 from . import api, get_db
 from ..utils.ErrorMessage import ErrorMessage
 from app.schemas import job as schemas
-from app.services import job as services
+from app.services import email_services, job as services
 from app.services import auth as auth_services
 from app.services import file as file_services
 
@@ -90,6 +90,54 @@ async def create_job_without_image(
         )
 
 
+@api.post("/job/apply/", tags=["job"], summary="Aplicar a una oferta de trabajo")
+async def apply_to_job_offer(
+    job_id: int,
+    db: Session = Depends(get_db),
+    token: str = Depends(auth_services.oauth2_scheme),
+):
+    try:
+        user = await auth_services.get_current_user(token)
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Usuario no autorizado",
+            )
+
+        resp = services.apply_job(db=db, job_id=job_id, user=user)
+
+        if resp is not None:
+            email_sent = await email_services.send_user_job_applied_email(
+                resp["company_name"],
+                resp["user_name"],
+                resp["career_name"],
+                resp["job_date"],
+                resp["email"],
+            )
+
+        if email_sent:
+            db.commit()
+            return {"message": "OK"}
+        else:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=ErrorMessage.HTTP_EXCEPTION_500.value,
+            )
+
+    except HTTPException as ex:
+        logger.exception(ex)
+        db.rollback()
+        raise HTTPException(status_code=ex.status_code, detail=ex.detail)
+    except Exception as e:
+        logger.exception(e)
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
+        )
+
+
 @api.put(
     "/job/{job_id}/",
     tags=["job"],
@@ -102,7 +150,7 @@ async def edit_job(
     token: str = Depends(auth_services.oauth2_scheme),
 ):
     try:
-        res = services.edit_job(db, job_id, job)
+        services.edit_job(db, job_id, job)
         db.commit()
         return {"message": "OK"}
 
