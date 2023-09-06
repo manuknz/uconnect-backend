@@ -43,7 +43,7 @@ def get_jobs(
                     match_found = False
                     for skill in job.skill:
                         for skill_filter in skills:
-                            if skill_filter == skill["skill_name"]:
+                            if skill_filter == skill.get("skill_name"):
                                 match_found = True
                                 break
                         if match_found:
@@ -51,8 +51,7 @@ def get_jobs(
                             del job.skill
                             filtered_results.append(job)
                             break
-                job.skills = job.skill
-                del job.skill
+
             except json.JSONDecodeError:
                 job.skill = None
         if job.user is not None:
@@ -62,8 +61,8 @@ def get_jobs(
                 del job.user
             except json.JSONDecodeError:
                 job.user = None
+
     if filtered_results == []:
-        logger.info("No se encontraron resultados con el filtro de habilidades")
         filtered_results = result
 
     return filtered_results
