@@ -114,7 +114,18 @@ def edit_user(
     try:
         res = services.edit_user(db, user_id, user)
         db.commit()
-        return {"message": "OK"}
+        if res:
+            edited_user = services.get_user_by_email(db, res.email)
+            edited_user.career_name = edited_user.career.name
+            del (
+                edited_user.career,
+                edited_user.career_id,
+                edited_user.file,
+                edited_user.file_id,
+                edited_user.password,
+                edited_user.password_reset_code,
+            )
+            return edited_user
     except HTTPException as ex:
         db.rollback()
         logging.exception(ex.detail)
