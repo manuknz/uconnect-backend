@@ -25,6 +25,7 @@ pip install -r requirements.txt
 ```
 - Crear o agregar archivo .env con las credenciales para la base de datos en la raiz del proyecto.
 - Crear o agregar archivo env.py con todas las variables de entorno del proyecto en app/env.
+- Tambien pueden obtener estos archivos en este [GoogleDrive](https://drive.google.com/drive/folders/1FZFfCeO9K3Ri5VuVmICvBWA0v3HNBlgq?usp=drive_link), solicitando acceso.
 - Buildear y levantar los contenedores:
 ```
 docker-compose up --build
