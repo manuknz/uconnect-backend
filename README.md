@@ -4,6 +4,11 @@ Proyecto de uConnect desarrollado con [FastAPI](https://fastapi.tiangolo.com/)
 
 ## EJECUTAR LOCALMENTE
 
+La maquina en la que querramos levantar el proyecto debe tener instalada estas dependencias:
+
+- Python (version < 3.11) 
+- Docker (con docker-compose)
+
 ### Primeros pasos para levantar el proyecto ya desarrollado
 
 - Levantar el venv de Python:
@@ -18,7 +23,13 @@ source virtenv/bin/activate
 ```
 pip install -r requirements.txt
 ```
-- Crear o agregar archivo .env
+- Crear o agregar archivo .env con las credenciales para la base de datos en la raiz del proyecto.
+- Crear o agregar archivo env.py con todas las variables de entorno del proyecto en app/env.
+- Buildear y levantar los contenedores:
+```
+docker-compose up --build
+```
+- Puede que tire un error porque el contenedor de la app se levanto antes que el de la BD. En ese caso podemos buildear y levantar ejecutando los siguientes comandos:
 - Buildear los contenedores:
 ```
 docker-compose build
@@ -27,12 +38,12 @@ docker-compose build
 ```
 docker-compose up --detach --no-build db && docker-compose up --build server
 ```
-- Para las siguientes veces solo basta con ejecutar:
+- Para las siguientes veces que querramos correr solo basta con ejecutar:
 ```
 docker-compose up
 ```
 #### Para crear y aplicar migraciones del alembic
-- Ingresamos al container para ejecutar el alembic:
+- Ingresamos al contenedor levantado para ejecutar el alembic:
 ```
 docker-compose exec -it server bash       
 ```
@@ -60,6 +71,7 @@ source virtenv/bin/activate
 pip install fastapi fastapi-sqlalchemy pydantic alembic psycopg2 uvicorn python-dotenv
 ```
 - Crear archivo .env
+- Crear ruta y archivo app/env/env.py
 - Crear archivo main.py
 - Crear archivo Dockerfile
 - Creamos archivo requirements.txt:
@@ -72,7 +84,7 @@ pip freeze > requirements.txt
 ```
 alembic init alembic
 ```
-- Construimos el container:
+- Construimos el contenedor:
 ```
 docker-compose up
 ```
