@@ -53,13 +53,17 @@ def get_user_by_email(db: Session, email: str):
         .first()
     )
 
-    if user and user.skill is not None:
-        try:
-            user.skill = json.loads(user.skill)
+    if user is not None:
+        if user.skill is not None:
+            try:
+                user.skill = json.loads(user.skill)
+                user.skills = user.skill
+                del user.skill
+            except json.JSONDecodeError:
+                user.skill = None
+        else:
             user.skills = user.skill
             del user.skill
-        except json.JSONDecodeError:
-            user.skill = None
     return user
 
 
