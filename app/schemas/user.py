@@ -19,6 +19,10 @@ class UserCreate(UserBase):
     career: str
 
 
+class UserEdit(UserBase):
+    career: str
+
+
 class UserCv(UserCreate):
     file_id: int
 

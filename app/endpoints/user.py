@@ -107,7 +107,7 @@ async def recover_password(
 )
 def edit_user(
     user_id: int,
-    user: schemas.UserCreate,
+    user: schemas.UserEdit,
     db: Session = Depends(get_db),
     token: str = Depends(auth_services.oauth2_scheme),
 ):
