@@ -23,6 +23,11 @@ class UserEdit(UserBase):
     career: str
 
 
+class UserPassword(BaseModel):
+    old_password: str
+    new_password: str
+
+
 class UserCv(UserCreate):
     file_id: int
 

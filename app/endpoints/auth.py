@@ -1,7 +1,10 @@
+from enum import Enum
 import logging
 
 from . import api, get_db
 from app.env.env import HashSettings
+from app.schemas.auth import UserType
+from app.schemas.user import UserPassword
 from app.services import auth as auth_services
 from app.utils.ErrorMessage import ErrorMessage
 
@@ -52,3 +55,33 @@ async def login(
             "company": company,
             "access_token": access_token,
         }
+
+
+@api.put(
+    "/change-password/",
+    tags=["auth"],
+    summary="Cambiar contraseña",
+)
+def change_password(
+    id: int,
+    user_passwords: UserPassword,
+    type: UserType = UserType.user,
+    db: Session = Depends(get_db),
+    token: str = Depends(auth_services.oauth2_scheme),
+):
+    try:
+        res = auth_services.change_password(db, id, type, user_passwords)
+        db.commit()
+        if res:
+            return {"message": "OK"}
+    except HTTPException as ex:
+        db.rollback()
+        logging.exception(ex.detail)
+        raise HTTPException(status_code=ex.status_code, detail=ex.detail)
+    except Exception as e:
+        db.rollback()
+        logging.exception(ErrorMessage.HTTP_EXCEPTION_500.value)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessage.HTTP_EXCEPTION_500.value,
+        )

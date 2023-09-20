@@ -21,6 +21,7 @@ class ErrorMessage(Enum):
     USER_EMAIL_NOT_FOUND = "El correo no se encuentra registrado"
     USER_ASSIGNED = "El usuario fue asignado satisfactoriamente"
     USER_STATE_UPDATED = "El usuario fue editado satisfactoriamente"
+    USER_OLD_PASSWORD_INCORRECT = "Las contraseñas no coinciden"
 
     # JOB
     JOB_NOT_FOUND = "La oferta de trabajo no existe"

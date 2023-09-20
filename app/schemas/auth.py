@@ -1,3 +1,4 @@
+from enum import Enum
 from pydantic import BaseModel
 from app.schemas.company import Company
 from app.schemas.user import User
@@ -16,3 +17,8 @@ class AuthCompany(BaseModel):
 
     class Config:
         orm_mode: True
+
+
+class UserType(str, Enum):
+    user = "user"
+    company = "company"
