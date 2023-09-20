@@ -114,7 +114,6 @@ def edit_user(db: Session, user_id: int, user: schemas.UserCreate):
             del db_user.skills
         else:
             db_user.skill = None
-            del db_user.skills
 
         db.flush()
         return db_user
