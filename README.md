@@ -43,6 +43,7 @@ docker-compose up --detach --no-build db && docker-compose up --build server
 ```
 docker-compose up
 ```
+- Luego el swagger de la API estará disponible en `http://localhost/uconnect/api/docs#`
 #### Para crear y aplicar migraciones del alembic
 - Ingresamos al contenedor levantado para ejecutar el alembic:
 ```
