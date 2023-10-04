@@ -132,6 +132,11 @@ def get_password_reset_code(db: Session, user_email: str):
         )
         hashed_password = auth_services.get_password_hash(plain_password_code)
         db_user.password_reset_code = hashed_password
+        if db_user.skills is not None:
+            db_user.skill = db_user.skills
+            del db_user.skills
+        else:
+            db_user.skill = None
         db.flush()
         return {"user": db_user, "password_code": plain_password_code}
     else:
