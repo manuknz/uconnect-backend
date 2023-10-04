@@ -37,7 +37,7 @@ docker-compose build
 ```
 - Levantar los contenedores:
 ```
-docker-compose up --detach --no-build db && docker-compose up --build server
+docker-compose up --detach --no-build db && docker-compose up --build server nginx
 ```
 - Para las siguientes veces que querramos correr solo basta con ejecutar:
 ```
