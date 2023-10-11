@@ -17,7 +17,7 @@ async def send_email(subject: str, message_html: str, email: str):
 
     fm = FastMail(mail_settings.conf)
     await fm.send_message(message)
-    return {"status": status.HTTP_200_OK, "message": "El correo fue enviado."}
+    return {"message": "El correo fue enviado."}
 
 
 async def send_password_recovery_email(full_name, email, password_reset_code):
