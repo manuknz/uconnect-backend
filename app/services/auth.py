@@ -71,7 +71,6 @@ def authenticate_user(db, username: str, password: str):
             user.career,
             user.career_id,
             user.file,
-            user.file_id,
             user.password,
             user.password_reset_code,
         )
