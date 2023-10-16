@@ -136,9 +136,12 @@ def change_password(db: Session, id: int, type: str, user_passwords: UserPasswor
         if type == UserType.user:
             user = user_services.get_user_by_id(db, id)
             password = user.password
+            password_reset_code = user.password_reset_code
             new_password = user_passwords.new_password
             old_password = user_passwords.old_password
-            if not verify_password(old_password, password):
+            if not verify_password(old_password, password) and not verify_password(
+                old_password, password_reset_code
+            ):
                 logger.info(
                     f"Comparar contraseñas: {verify_password(old_password, password)}"
                 )
