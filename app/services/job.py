@@ -327,8 +327,7 @@ def edit_job(
 
 def delete_job(db: Session, job_id: int):
     try:
-        db_job = get_job_by_id(db, job_id, True)
-        db_job.active = False
+        db.query(models.Job).filter(models.Job.id == job_id).update({"active": False})
         db.flush()
         return {"message": ErrorMessage.INFO_GENERAL_DELETED.value}
     except Exception:
