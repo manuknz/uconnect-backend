@@ -209,6 +209,13 @@ def apply_job(db: Session, job_id: int, user: str):
                 detail=ErrorMessage.HTTP_EXCEPTION_401_USER_DOESNT_EXIST.value,
             )
 
+        if db_user.skills is not None:
+            db_user.skill = json.dumps(db_user.skills, default=skill_encoder)
+            del db_user.skills
+        else:
+            db_user.skill = None
+            del db_user.skills
+
         job_user = schemas.JobUser(
             email=db_user.email,
             full_name=db_user.full_name,
