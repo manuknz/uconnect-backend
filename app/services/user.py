@@ -133,6 +133,7 @@ def get_password_reset_code(db: Session, user_email: str):
         hashed_password = auth_services.get_password_hash(plain_password_code)
         db_user.password_reset_code = hashed_password
         if db_user.skills is not None:
+            db_user.skills = json.dumps(db_user.skills, default=skill_encoder)
             db_user.skill = db_user.skills
             del db_user.skills
         else:
