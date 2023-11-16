@@ -30,7 +30,7 @@ class Job(Base):
     career_id = Column(Integer, ForeignKey("career.id"))
     city_id = Column(Integer, ForeignKey("city.id"))
     file_id = Column(Integer, ForeignKey("file.id"), nullable=True)
-    skill = Column(JSON, nullable=True)
+    skills = Column(JSON, nullable=True)
     user = Column(JSON, nullable=True)
 
     company = relationship(Company, lazy="joined")
@@ -48,7 +48,7 @@ class Job(Base):
         career_id,
         city_id,
         file_id,
-        skill=None,
+        skills=None,
         user=None,
     ):
         self.description = description
@@ -59,5 +59,5 @@ class Job(Base):
         self.career_id = career_id
         self.city_id = city_id
         self.file_id = file_id
-        self.skill = skill
+        self.skills = skills
         self.user = user

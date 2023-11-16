@@ -21,13 +21,12 @@ def get_users(db: Session):
     query = db.query(models.User).all()
 
     for user in query:
-        if user.skill is not None:
+        if user.skills is not None:
             try:
-                user.skill = json.loads(user.skill)
-                user.skills = user.skill
-                del user.skill
+                user.skills = json.loads(user.skills)
+
             except json.JSONDecodeError:
-                user.skill = None
+                user.skills = None
 
     return query
 
@@ -35,13 +34,12 @@ def get_users(db: Session):
 def get_user_by_id(db: Session, user_id: int):
     user = db.query(models.User).filter(models.User.id == user_id).first()
 
-    if user.skill is not None:
+    if user.skills is not None:
         try:
-            user.skill = json.loads(user.skill)
-            user.skills = user.skill
-            del user.skill
+            user.skills = json.loads(user.skills)
+
         except json.JSONDecodeError:
-            user.skill = None
+            user.skills = None
 
     return user
 
@@ -54,16 +52,14 @@ def get_user_by_email(db: Session, email: str):
     )
 
     if user is not None:
-        if user.skill is not None:
+        if user.skills is not None:
             try:
-                user.skill = json.loads(user.skill)
-                user.skills = user.skill
-                del user.skill
+                user.skills = json.loads(user.skills)
+
             except json.JSONDecodeError:
-                user.skill = None
+                user.skills = None
         else:
-            user.skills = user.skill
-            del user.skill
+            user.skills = None
     return user
 
 
@@ -110,10 +106,9 @@ def edit_user(db: Session, user_id: int, user: schemas.UserCreate):
         db_user.career_id = career_id
         if user.skills is not None:
             db_user.skills = json.dumps(user.skills, default=skill_encoder)
-            db_user.skill = db_user.skills
-            del db_user.skills
+
         else:
-            db_user.skill = None
+            db_user.skills = None
 
         db.flush()
         return db_user
@@ -134,10 +129,9 @@ def get_password_reset_code(db: Session, user_email: str):
         db_user.password_reset_code = hashed_password
         if db_user.skills is not None:
             db_user.skills = json.dumps(db_user.skills, default=skill_encoder)
-            db_user.skill = db_user.skills
-            del db_user.skills
+
         else:
-            db_user.skill = None
+            db_user.skills = None
         db.flush()
         return {"user": db_user, "password_code": plain_password_code}
     else:

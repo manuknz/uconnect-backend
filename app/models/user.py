@@ -17,13 +17,13 @@ class User(Base):
     password_reset_code = Column(String, nullable=True)
     career_id = Column(Integer, ForeignKey("career.id"))
     file_id = Column(Integer, ForeignKey("file.id"), nullable=True)
-    skill = Column(JSON, nullable=True)
+    skills = Column(JSON, nullable=True)
 
     career = relationship(Career, lazy="joined")
     file = relationship(File, lazy="joined")
 
     def __init__(
-        self, email, password, full_name, phone_number, career_id, file_id, skill=None
+        self, email, password, full_name, phone_number, career_id, file_id, skills=None
     ):
         self.email = email
         self.password = password
@@ -31,4 +31,4 @@ class User(Base):
         self.phone_number = phone_number
         self.career_id = career_id
         self.file_id = file_id
-        self.skill = skill
+        self.skills = skills

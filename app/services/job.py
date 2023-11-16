@@ -36,24 +36,22 @@ def get_jobs(
         job.career_name = str(job.career.name)
         job.city_name = str(job.city.name)
         del (job.company_id, job.career, job.city)
-        if job.skill is not None:
+        if job.skills is not None:
             try:
-                job.skill = json.loads(job.skill)
+                job.skills = json.loads(job.skills)
                 if skills is not None:
                     match_found = False
-                    for skill in job.skill:
+                    for skill in job.skills:
                         for skill_filter in skills:
                             if skill_filter == skill.get("skill_name"):
                                 match_found = True
                                 break
                         if match_found:
-                            job.skills = job.skill
-                            del job.skill
                             filtered_results.append(job)
                             break
 
             except json.JSONDecodeError:
-                job.skill = None
+                job.skills = None
         if job.user is not None:
             try:
                 job.user = json.loads(job.user)
@@ -83,13 +81,11 @@ def get_job_by_id(db: Session, job_id: int, full: bool = False):
                     query.file,
                     query.company_id,
                 )
-            if query.skill is not None:
+            if query.skills is not None:
                 try:
-                    query.skill = json.loads(query.skill)
-                    query.skills = query.skill
-                    del query.skill
+                    query.skills = json.loads(query.skills)
                 except json.JSONDecodeError:
-                    query.skill = None
+                    query.skills = None
             if query.user is not None:
                 try:
                     query.user = json.loads(query.user)
@@ -124,13 +120,11 @@ def get_jobs_by_company_id(db: Session, company_id: int):
             job.career_name = str(job.career.name)
             job.city_name = str(job.city.name)
             del (job.company, job.career, job.city)
-            if job.skill is not None:
+            if job.skills is not None:
                 try:
-                    job.skill = json.loads(job.skill)
-                    job.skills = job.skill
-                    del job.skill
+                    job.skills = json.loads(job.skills)
                 except json.JSONDecodeError:
-                    job.skill = None
+                    job.skills = None
             if job.user is not None:
                 try:
                     job.user = json.loads(job.user)
@@ -188,7 +182,7 @@ def create_job_without_file(db: Session, job: schemas.JobCreateWithoutImage):
         company_id=job.company_id,
         career_id=career.id,
         city_id=city.id,
-        skill=json.dumps(job.skills, default=skill_encoder)
+        skills=json.dumps(job.skills, default=skill_encoder)
         if job.skills is not None
         else None,
         user=None,
@@ -210,11 +204,9 @@ def apply_job(db: Session, job_id: int, user: str):
             )
 
         if db_user.skills is not None:
-            db_user.skill = json.dumps(db_user.skills, default=skill_encoder)
-            del db_user.skills
+            db_user.skills = json.dumps(db_user.skills, default=skill_encoder)
         else:
-            db_user.skill = None
-            del db_user.skills
+            db_user.skills = None
 
         job_user = schemas.JobUser(
             email=db_user.email,
@@ -303,11 +295,9 @@ def edit_job(
         db_job.city_id = city_id
         if job.skills is not None:
             db_job.skills = json.dumps(job.skills, default=skill_encoder)
-            db_job.skill = db_job.skills
-            del db_job.skills
+
         else:
-            db_job.skill = None
-            del db_job.skills
+            db_job.skills = None
 
         if db_job.users is not None:
             db_job.user = json.dumps(db_job.users)
