@@ -43,7 +43,7 @@ def get_jobs(
                     match_found = False
                     for skill in job.skills:
                         for skill_filter in skills:
-                            if skill_filter == skill.get("skill_name"):
+                            if skill_filter.lower() == skill.get("skill_name").lower():
                                 match_found = True
                                 break
                         if match_found:
