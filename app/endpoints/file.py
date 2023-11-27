@@ -50,7 +50,9 @@ def get_file(file_id: int, db: Session = Depends(get_db)):
 
 
 @api.post(
-    "/file/upload/", tags=["file"], summary="Cargar un archivo y asignar a un usuario"
+    "/file/upload/",
+    tags=["file"],
+    summary="Cargar un archivo y asignar a un usuario o trabajo",
 )
 async def upload_file(
     id: int,

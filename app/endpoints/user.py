@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
     "/user/all/",
     response_model=List[schemas.User],
     tags=["user"],
-    summary="Obtener todos los usuarios",
+    summary="Obtener todos los estudiantes",
 )
 def get_users(
     db: Session = Depends(get_db), token: str = Depends(auth_services.oauth2_scheme)
@@ -37,7 +37,7 @@ def get_users(
     "/user/email/{email}/",
     response_model=schemas.User,
     tags=["user"],
-    summary="Obtener usuario por correo",
+    summary="Obtener estudiante por correo",
 )
 async def get_user_by_mail(
     email: str,
@@ -48,7 +48,7 @@ async def get_user_by_mail(
     return user
 
 
-@api.post("/user/create/", tags=["user"], summary="Crear un usuario")
+@api.post("/user/create/", tags=["user"], summary="Crear un estudiante")
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     try:
         db_user = services.get_user_by_email(db=db, email=user.email)
@@ -74,7 +74,11 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         )
 
 
-@api.post("/user/recover-password/", tags=["user"], summary="Recuperar contraseña")
+@api.post(
+    "/user/recover-password/",
+    tags=["user"],
+    summary="Recuperar contraseña de estudiante",
+)
 async def recover_password(
     data: pass_schemas.PasswordEmail, db: Session = Depends(get_db)
 ):
@@ -103,7 +107,7 @@ async def recover_password(
 @api.put(
     "/user/{user_id}/",
     tags=["user"],
-    summary="Editar usuario",
+    summary="Editar estudiante",
 )
 def edit_user(
     user_id: int,
