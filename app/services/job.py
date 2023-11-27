@@ -29,17 +29,37 @@ def get_jobs(
         query = query.filter(models.Job.job_type == job_type)
     result = query.all()
 
-    filtered_results = []
-    for job in result:
-        company = company_services.get_company_by_id(db, job.company_id)
-        job.company_name = str(company.name)
-        job.career_name = str(job.career.name)
-        job.city_name = str(job.city.name)
-        del (job.company_id, job.career, job.city)
-        if job.skills is not None:
-            try:
-                job.skills = json.loads(job.skills)
-                if skills is not None:
+    if skills is None:
+        for job in result:
+            company = company_services.get_company_by_id(db, job.company_id)
+            job.company_name = str(company.name)
+            job.career_name = str(job.career.name)
+            job.city_name = str(job.city.name)
+            del (job.company, job.career, job.city)
+            if job.skills is not None:
+                try:
+                    job.skills = json.loads(job.skills)
+                except json.JSONDecodeError:
+                    job.skills = None
+            if job.user is not None:
+                try:
+                    job.user = json.loads(job.user)
+                    job.users = job.user
+                    del job.user
+                except json.JSONDecodeError:
+                    job.user = None
+        return result
+    else:
+        filtered_results = []
+        for job in result:
+            company = company_services.get_company_by_id(db, job.company_id)
+            job.company_name = str(company.name)
+            job.career_name = str(job.career.name)
+            job.city_name = str(job.city.name)
+            del (job.company_id, job.career, job.city)
+            if job.skills is not None:
+                try:
+                    job.skills = json.loads(job.skills)
                     match_found = False
                     for skill in job.skills:
                         for skill_filter in skills:
@@ -49,21 +69,17 @@ def get_jobs(
                         if match_found:
                             filtered_results.append(job)
                             break
+                except json.JSONDecodeError:
+                    job.skills = None
 
-            except json.JSONDecodeError:
-                job.skills = None
-        if job.user is not None:
-            try:
-                job.user = json.loads(job.user)
-                job.users = job.user
-                del job.user
-            except json.JSONDecodeError:
-                job.user = None
-
-    if filtered_results == []:
-        filtered_results = result
-
-    return filtered_results
+            if job.user is not None:
+                try:
+                    job.user = json.loads(job.user)
+                    job.users = job.user
+                    del job.user
+                except json.JSONDecodeError:
+                    job.user = None
+        return filtered_results
 
 
 def get_job_by_id(db: Session, job_id: int, full: bool = False):
