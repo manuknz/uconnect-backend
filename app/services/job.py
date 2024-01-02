@@ -109,6 +109,10 @@ def get_job_by_id(db: Session, job_id: int, full: bool = False):
                     del query.user
                 except json.JSONDecodeError:
                     query.user = None
+            else:
+                query.users = None
+                del query.user
+
     except:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
